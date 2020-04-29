@@ -148,24 +148,8 @@ uint8_t *dp3t_get_ephid(int epoch)
 	return EPHIDS_LOCAL[epoch];
 }
 
-
-#ifdef MODULE_WOLFCRYPT_TEST
-extern int wolfcrypt_test(void* args);
-static int wolftest(int argc, char **argv)
-{
-	(void)argc;
-	(void)argv;
-	wolfcrypt_test(NULL);
-	return 0;
-}
-#endif
-
 int main(int argc, char **argv) {
 	/* dp3t */
-// #ifdef DEBUG
-// 	wolfSSL_Debugging_ON();
-// #endif
-
 	dp3t_random(SKT_0, SK_LEN);
 	dp3t_create_ephids(SKT_0);
 	exit(0);

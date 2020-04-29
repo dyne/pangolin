@@ -12,12 +12,13 @@
 // #include <dp3t.h>
 
 #define SK_LEN 32
-#define BK "Broadcast key"
+static char BK[] = "Broadcast key";
 #define EPHID_LEN 16
 
-// test vectors from issue #62
+// test vectors from https://github.com/DP-3T/documents/issues/62
 #define PRF "d59d48e21935f3389e3bd3eb02cf66989190b7b09ed6c0a4b9616f49455c4f9a"
 #define ephid0 "8fd521e6c47060efcbfdb9b801c30743"
+#define ephid8 "c3db7c504dd6172d1e48804bedbaebba"
 
 static char buffer[64];
 static char *hex(const char *src) {
@@ -35,7 +36,7 @@ spec("DP-3T") {
 	memset(SK0,0x0,SK_LEN);
 	context("lowcost") {
 		byte prf[SK_LEN];
-		it("should use 'Broadcast key'") check(strcmp(BK, "Broadcast key")==0);
+		it("should use 'Broadcast key'") check( compare(BK, "Broadcast key", strlen(BK)) );
 		it("should have zero derived PRF matching d59d48e21935f338...") {
 			Hmac hmac;
 			wc_HmacInit(&hmac, NULL, INVALID_DEVID);
@@ -46,13 +47,23 @@ spec("DP-3T") {
 			wc_HmacFree(&hmac);
 		}
 
-		it("should have zero derived EphID matching 8fd521e6c47060ef...") {
+		it("should have zero derived EphID 1 matching 8fd521e6c47060ef...") {
 			Aes aes;
 			char out[EPHID_LEN];
 			wc_AesInit(&aes, NULL, INVALID_DEVID);
 			wc_AesSetKeyDirect(&aes, prf, 32, SK0, AES_ENCRYPTION);
 			wc_AesCtrEncrypt(&aes, out, SK0, EPHID_LEN); 
 			check( compare(out, hex(ephid0), EPHID_LEN) );
+			wc_AesFree(&aes);
+		}
+
+		it("should have zero derived EphID 8 matching c3db7c504dd6172d...") {
+			Aes aes;
+			char out[EPHID_LEN];
+			wc_AesInit(&aes, NULL, INVALID_DEVID);
+			wc_AesSetKeyDirect(&aes, prf, 32, SK0, AES_ENCRYPTION);
+			for(int i=0; i<=8; i++) wc_AesCtrEncrypt(&aes, out, SK0, EPHID_LEN); 
+			check( compare(out, hex(ephid8), EPHID_LEN) );
 			wc_AesFree(&aes);
 		}
 	}
