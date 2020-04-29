@@ -91,12 +91,13 @@ beacons_t *alloc_beacons(const uint8_t *sk, const char *bk, uint32_t num) {
 
 	wc_AesInit(&aes, NULL, INVALID_DEVID);
 	wc_AesSetKeyDirect(&aes, prf, 32, zero16, AES_ENCRYPTION);
-	uint8_t *p = beacons->data;
+	register uint8_t *p = beacons->data;
 	register uint32_t i;
 	for(i=0; i<num; i++, p+=16)
 		wc_AesCtrEncrypt(&aes, p, zero16, 16); 
 	wc_AesFree(&aes);
 	return(beacons);
+	// TODO: randomize
 }
 
 void free_beacons(beacons_t *b) {
@@ -111,4 +112,41 @@ uint8_t *get_beacon(beacons_t *b, uint32_t num) {
 	assert(b);
 	assert(num < b->num);
 	return(&b->data[num<<4]); // multiply by 16 = EPHID_LEN
+}
+
+struct dictionary *match_positive_beacons(beacons_t *ephids, positives_t *sks, 
+                                          const char *bk, uint32_t num) {
+	struct dictionary *dic = dic_new(0);
+	// initial buffer allocation: number of ephids / 8
+	Hmac hmac;
+	Aes aes;
+	wc_HmacInit(&hmac, NULL, INVALID_DEVID); 
+	wc_AesInit(&aes, NULL, INVALID_DEVID);
+
+	uint32_t bklen = strlen(bk);
+	uint8_t prf[32];
+	uint8_t *sk;
+	register uint32_t i, ii, iii;
+	for(i=0;i<sks->num;i++) {
+		// calculate PRF of current posisk
+		sk = &sks->data[i<<5]; // multiply by 32 = SK_LEN
+		wc_HmacSetKey(&hmac, WC_SHA256, sk, 32);
+		wc_HmacUpdate(&hmac, (const byte*)bk, bklen);
+		wc_HmacFinal(&hmac, prf);
+		wc_AesSetKeyDirect(&aes, prf, 32, zero16, AES_ENCRYPTION);
+		// calculate ephids of the current posisk
+		uint8_t skeph[16];
+		for(ii=0; ii<num; ii++) {
+			wc_AesCtrEncrypt(&aes, skeph, zero16, 16); 
+			for(iii=0; iii<ephids->num; iii++) {
+				if( memcmp(skeph, &ephids->data[iii<<4], 16) ==0) {
+					dic_add(dic, sk, 32); *dic->value+=1;
+				}
+			}
+		}
+	}
+
+	wc_AesFree(&aes);
+	wc_HmacFree(&hmac);
+	return(dic);
 }

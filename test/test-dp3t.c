@@ -34,12 +34,12 @@
 #define EPHID_LEN 16
 
 spec("DP-3T") {
-	static char BK[] = "Broadcast key";
+	// static char BK[] = "Broadcast key";
 
 	before() {
 		printf("version: %s\n",VERSION);
 		printf("platform: %s\n", PLATFORM);
-		printf("broadcast: %s\n", BK);
+		// printf("broadcast: %s\n", hex32(BK));
 	}
 	after() {
 	}
@@ -48,15 +48,19 @@ spec("DP-3T") {
 		static beacons_t *b;
 		static uint8_t *e;
 		static uint32_t epd = (24*60)/15;
+		static beacons_t ephids;
+		static positives_t positives;
 		before() {
 			gcinit(&head);
 			memset(sk,0x0,32);
 		}
+
 		after() {
 			free_beacons(b);
 			gcfree(&head);
 		}
-		it("should use 'Broadcast key'") check( compare(BK, "Broadcast key", strlen(BK)) );
+
+		it("should use 'Broadcast key'") check( compare(hex32(BK), "Broadcast key", BKLEN) );
 		it("should have zero derived SK1 matching 66687aadf862bd77...") {
 			renew_key(sk);
 			check( compare(sk, hex32(SK1), 32) );
@@ -67,7 +71,7 @@ spec("DP-3T") {
 		}
 		it("should allocate memory and generate beacons") {
 			memset(sk,0x0,32);
-			b = alloc_beacons(sk, BK, epd);
+			b = alloc_beacons(sk, hex32(BK), epd);
 			check( b != NULL ); 
 		}
 		it("should have zero derived EphID 1 matching 8fd521e6c47060ef...") {
@@ -77,6 +81,38 @@ spec("DP-3T") {
 		it("should have zero derived EphID 8 matching c3db7c504dd6172d...") {
 			e = get_beacon(b, 8);
 			check( compare(e, hex32(ephid8), 16) );
+		}
+		it("should match first positive SK generated EphID") {
+			static beacons_t *ske;
+			ske = alloc_beacons( //hex32(ZERO32),
+				hex32("984544bc997859dc250b664da0bc7ff55d7d1aa2d5bb7e8c4d0f0d17312437e9"),
+				hex32(BK), epd);
+		}
+		it("should match EphIDs with key 984544bc...") {
+			ephids.num = 14;
+			ephids.data = hex32("c1e0654b89518e4a321f7b33ba408987"
+			                    "60063595836a97b3e2e69fa9f51dc45c"
+			                    "6a9668c9246b6ee8b80140a32bf846e3"
+			                    "f9ee1f679bdb8b6607fb3102df2af513"
+			                    "11fec0ff20ed86e3b27fe78166dbc165"
+			                    "dabee67c21c78d3804cff34805585b74"
+			                    "5ba2607b92b20a826725d182150e5148"
+			                    "4e6729728d82fd7b5c1b118c9d751851"
+			                    "45d14c4efb1ff88a2e563fda605397e4"
+			                    "43e9dc955644bc20daf8316ec26a6aac" // matches from 9845...
+			                    "6434f413781ffe243e055e1265a5af5b"
+			                    "a51b3af34af8052b9f80239eda5dcd67"
+			                    "680c04683805b91c8b49b7f246897193"
+			                    "fc1222872b066ee0d62a166badf0a591");
+			positives.num = 4;
+			positives.data
+				= hex32("984544bc997859dc250b664da0bc7ff55d7d1aa2d5bb7e8c4d0f0d17312437e9"
+				        "be72bb64705835411286c011c6c6da7cab6b78e4713dfe12538e3c685e8a7ea9"
+				        "1d28890e653790c0d337affec887375718dda447e135cc7e5ef32aa19e045a52"
+				        "213bb73bd4936375d02c4b72eb2b5ed6ac57318d8f7da7359a75d403ac1d8398");
+			struct dictionary *dic = match_positive_beacons(&ephids, &positives, hex32(BK), 9);
+			dic_find(dic, "984544bc997859dc250b664da0bc7ff55d7d1aa2d5bb7e8c4d0f0d17312437e9", 32);
+			check( *dic->value == 5 )
 		}
 	}
 }

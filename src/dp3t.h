@@ -23,6 +23,7 @@
 #define __DP3T_H__
 
 #include <inttypes.h>
+#include <hashdict.h>
 
 // simple offset structure of num elements sized EPHID_LEN bytes
 typedef struct {
@@ -30,10 +31,19 @@ typedef struct {
 	uint8_t *data;
 } beacons_t;
 
+typedef struct {
+	uint32_t num;
+	uint8_t *data;
+} positives_t;
+
+
 int renew_key(uint8_t *sk);
 
 beacons_t *alloc_beacons(const uint8_t *sk, const char *bk, uint32_t epd);
 void       free_beacons(beacons_t *b);
 uint8_t   *get_beacon(beacons_t *b, uint32_t num);
+
+struct dictionary *match_positive_beacons(beacons_t *ephids, positives_t *sks,
+                                          const char *bk, uint32_t num);
 
 #endif

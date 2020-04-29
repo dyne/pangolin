@@ -51,7 +51,7 @@ static void gcfree(struct node **head) {
 	} while (current);
 }
 static char *hex32(const char *src) {
-	char *o = (char*)gcadd(&head, malloc(32));
+	char *o = (char*)gcadd(&head, malloc(strlen(src)));
 	hex2bin(o, src);
 	return(o);
 }
@@ -60,6 +60,17 @@ static char *bin32(const uint8_t *src) {
 	bin2hex(o, src, 32);
 	return(o);
 }
+static char *bin16(const uint8_t *src) {
+	char *o = (char*)gcadd(&head, malloc(32+1));
+	bin2hex(o, src, 16);
+	return(o);
+}
+
+#define H32(p) printf("%s\n", p);
+#define B16(p) printf("%s\n", bin16(p))
+#define B32(p) printf("%s\n", bin32(p))
+static const uint8_t *spy16(const uint8_t *src) { B16(src); return(src); }
+static const uint8_t *spy32(const uint8_t *src) { B32(src); return(src); }
 
 static const int compare(char *left, char *right, size_t len) {
 	assert(! (left == right)); // avoid comparing buffer with itself
