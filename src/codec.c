@@ -39,7 +39,7 @@ static const int32_t hextable[] = {
 
 // takes zero terminated hex string, requires pre-allocation of dst,
 // returns len in bytes
-int hex2bin(char *dst, const char *hex) {
+int hex2bin(uint8_t *dst, const char *hex) {
 	register int i, j;
 	for(i=0, j=0; hex[j]!=0; i++, j+=2)
 		dst[i] = (hextable[(short)hex[j]]<<4) + hextable[(short)hex[j+1]];
@@ -49,7 +49,7 @@ int hex2bin(char *dst, const char *hex) {
 // takes binary buffer and its bytes length, requires pre-allocation
 // of dst string
 static const char hexes[] = "0123456789abcdef";
-void bin2hex(char *dst, const char *buf, const size_t len) {
+void bin2hex(char *dst, const uint8_t *buf, const size_t len) {
 	register size_t i;
 	register unsigned char ch;
 	for (i=0; i<len; i++) {

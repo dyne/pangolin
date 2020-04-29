@@ -3,36 +3,38 @@ CC ?= gcc
 
 INCLUDES := -I .
 CFLAGS := -DDEBUG -O0 -ggdb -Wall -fPIC $(INCLUDES)
-CFLAGS += -fstack-protector-all -D_FORTIFY_SOURCE=2 -fno-strict-overflow
+# CFLAGS += -fstack-protector-all -D_FORTIFY_SOURCE=2 -fno-strict-overflow
 
-ARCH := $(shell uname -m)
+ARCH ?= $(shell uname -m)
 BRANCH := $(shell git symbolic-ref HEAD | sed -e 's,.*/\(.*\),\1,')
 HASH := $(shell git rev-parse --short HEAD)
 VERSION := ${FPTW_VERSION}+${HASH}
-
-SOURCES := codec.o
+PLATFORM := $(shell uname -mors)
 
 LDADD := -lwolfssl
 
-all: ${SOURCES} cli
+all: lib
+	@echo
+	@echo "Built on $(PLATFORM)"
+	@echo
 
-cli: $(SOURCES) main.o
-	$(CC) $(CFLAGS) $(SOURCES) main.o -o fptw $(LDFLAGS) $(LDADD)
+lib:
+	CC="$(CC)" CFLAGS="$(CFLAGS)" LDADD="$(LDADD)" VERSION="$(VERSION)" ARCH="$(ARCH)" \
+	make -C src lib-dynamic
 
-redis: CFLAGS += -DLIBRARY
-redis: $(SOURCES) redis.o
-	$(CC) $(CFLAGS) $(SOURCES) redis.o -shared ${LDADD} -o fptw.so
+test: CFLAGS := -I . -fPIC
+test:
+	$(CC) $(CFLAGS) test/test-dp3t.c -o test-dp3t src/libfptw-$(ARCH).so \
+		 -DVERSION=\"${VERSION}\" -DPLATFORM="\"${PLATFORM}\""
 
-test: codec.o
-	make -C test
+gdb: test
+	gdb -ex run --args ./test-dp3t
+
+valgrind: test
+	valgrind --tool=memcheck ./test-dp3t
 
 clean:
-	rm -f *.o
-	rm -f fptw
-	rm -f fptw.so
-	make -C test clean
-
-.c.o:
-	$(CC) $(CFLAGS) -c $< -o $@ -DVERSION=\"${VERSION}\"
+	make -C src clean
+	rm -f test/*.o
 
 .PHONY: test
