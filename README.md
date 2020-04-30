@@ -5,8 +5,8 @@
 </p>
 
 <h1 align="center">
-  Pangolin</br>
-  <sub>The Secret Pangolin Code, Fastest Proximity Tracing in the West (FPTW)</sub>
+  The Secret Pangolin Code</br>
+  <sub>Fastest Proximity Tracing in the West (FPTW)</sub>
 </h1>
 
 <p align="center">
@@ -35,9 +35,11 @@
   <a href="#-license">💼 License</a>
 </h4>
 
-Proximity tracing (proxtrax) with blazing fast speed, developed with the `embedded first` mindset.
+<br><br>
 
-Our benchmarks report that for 20.000 entries of DP3T Ephemeral IDs, ~5MB or RAM used and 0.02s of execution.
+Proximity tracing (proxtrax) with blazing fast speed, developed with the _embedded first_ mindset.
+
+Our benchmarks report that for **20.000** entries of DP3T Ephemeral IDs, ~5MB or RAM used and **0.02s** of execution.
 
 🚧 Pangolin is friend of the [DECODE project](https://decodeproject.eu) about data-ownership and [technological sovereignty](https://www.youtube.com/watch?v=RvBRbwBm_nQ). Our effort is that of improving people's awareness of how their data is processed by algorithms, as well facilitate the work of developers to create along [privacy by design principles](https://decodeproject.eu/publications/privacy-design-strategies-decode-architecture) using algorithms that can be deployed in any situation without any change.
 
@@ -64,7 +66,6 @@ Simply run the default target of `Makefile`
 ```bash
 make
 ```
-
 
 ---
 ## 🎮 Quick start
@@ -111,15 +112,13 @@ Icon made by [Freepik](https://www.flaticon.com/authors/freepik) from [www.flati
 
 Name inspiration comes from the [Secret Rabbit Code](http://www.mega-nerd.com/SRC/)
 
-
 ---
 ## 🌐 Links
 
 https://dyne.org/
 
-
 ---
-## 👤 Contributing
+## 👥 Contributing
 
 Please first take a look at the [Dyne.org - Contributor License Agreement](CONTRIBUTING.md) then
 
@@ -129,7 +128,6 @@ Please first take a look at the [Dyne.org - Contributor License Agreement](CONTR
 4.  Push to the branch `git push origin feature/branch`
 5.  Create a new Pull Request
 6.  🙏 Thank you
-
 
 ---
 ## 💼 License
