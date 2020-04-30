@@ -91,7 +91,7 @@ spec("DP-3T") {
 				hex32(BK), BKLEN, epd);
 		}
 		it("should match EphIDs with key 984544bc...") {
-			ephids.num = 14;
+			ephids.ttl = 14;
 			ephids.data = hex32("c1e0654b89518e4a321f7b33ba408987"
 			                    "60063595836a97b3e2e69fa9f51dc45c"
 			                    "6a9668c9246b6ee8b80140a32bf846e3"
@@ -106,23 +106,23 @@ spec("DP-3T") {
 			                    "a51b3af34af8052b9f80239eda5dcd67"
 			                    "680c04683805b91c8b49b7f246897193"
 			                    "fc1222872b066ee0d62a166badf0a591");
-			positives.num = 4;
+			positives.count = 4;
 			positives.data
 				= hex32("984544bc997859dc250b664da0bc7ff55d7d1aa2d5bb7e8c4d0f0d17312437e9"
 				        "be72bb64705835411286c011c6c6da7cab6b78e4713dfe12538e3c685e8a7ea9"
 				        "1d28890e653790c0d337affec887375718dda447e135cc7e5ef32aa19e045a52"
 				        "213bb73bd4936375d02c4b72eb2b5ed6ac57318d8f7da7359a75d403ac1d8398");
 			struct dictionary *dic = match_positives((const positives_t*)&positives,
-			                                         (const beacons_t*)&ephids,
-			                                         hex32(BK), BKLEN, 9);
+			                                         (const beacons_t*)&ephids);
+
 			dic_find(dic, "984544bc997859dc250b664da0bc7ff55d7d1aa2d5bb7e8c4d0f0d17312437e9", 32);
 			check( *dic->value == 5 )
 		}
 		it("should compute a match over 20k keys with epoch 15 minutes (96 moments)") {
-			positives.num = 20000;
+			positives.count = 20000;
 			positives.data = hex32(positive_sks); // vectors from positives.h
 			struct timespec *watch = stopwatch_go();
-			struct dictionary *dic = match_positives(&positives, &ephids, hex32(BK), 96);
+			struct dictionary *dic = match_positives(&positives, &ephids);
 			double exectime = stopwatch_lap(watch);
 			free(watch);
 			dic_find(dic, "984544bc997859dc250b664da0bc7ff55d7d1aa2d5bb7e8c4d0f0d17312437e9", 32);

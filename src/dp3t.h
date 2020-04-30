@@ -27,13 +27,15 @@
 
 // simple offset structure of num elements sized EPHID_LEN bytes
 typedef struct {
-	uint32_t num;
-	uint8_t *data;
+	uint32_t ttl;                //< ttl in minutes
+	uint8_t *data;              //< data offset
+	char *broadcast;          //< broadcast key
+	uint32_t broadcast_len;  //< broadcast key length
 } beacons_t;
 
 typedef struct {
-	uint32_t num;
-	uint8_t *data;
+	uint8_t *data;    //< data offset
+	uint32_t count; //< number of sk objects stored in data
 } positives_t;
 
 int renew_key(uint8_t *sk);
@@ -42,7 +44,7 @@ const beacons_t *alloc_beacons(const uint8_t *sk, const char *bk, uint32_t bklen
 void       free_beacons(const beacons_t *b);
 uint8_t   *get_beacon(const beacons_t *b, uint32_t num);
 
-struct dictionary *match_positives(const positives_t *sks, const beacons_t *ephids,
-                                   const char *bk, uint32_t num);
+struct dictionary *match_positives(const positives_t *sks, const beacons_t *ephids);
+
 
 #endif

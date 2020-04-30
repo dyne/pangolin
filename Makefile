@@ -23,7 +23,7 @@ lib:
 	CC="$(CC)" CFLAGS="$(CFLAGS)" LDADD="$(LDADD)" VERSION="$(VERSION)" ARCH="$(ARCH)" \
 	make -C src lib-dynamic
 
-test: CFLAGS := -I . -I src -fPIC
+test: CFLAGS := -I . -I src -O0 -ggdb -fPIC
 test:
 	$(CC) $(CFLAGS) test/test-dp3t.c -o test-dp3t src/libfptw-$(ARCH).so \
 		 -DVERSION=\"${VERSION}\" -DPLATFORM="\"${PLATFORM}\""
