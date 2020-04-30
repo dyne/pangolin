@@ -76,3 +76,25 @@ static const int compare(char *left, char *right, size_t len) {
 	assert(! (left == right)); // avoid comparing buffer with itself
 	return(memcmp(left, right, len) == 0);
 }
+
+
+// timing execution
+#include <time.h>
+static struct timespec *stopwatch_go() {
+	struct timespec *ts = malloc(sizeof(struct timespec));
+	if( clock_gettime( CLOCK_REALTIME, ts) == -1 ) {
+		perror( "clock gettime" );
+		exit( EXIT_FAILURE ); }
+	return(ts); }
+static double stopwatch_lap(struct timespec *ts) {
+	struct timespec lap;
+	double accum;
+	if( clock_gettime( CLOCK_REALTIME, &lap) == -1 ) {
+		perror( "clock gettime" );
+		exit( EXIT_FAILURE ); }
+	return(( lap.tv_sec - ts->tv_sec )
+	       + ( lap.tv_nsec - ts->tv_nsec )
+	       / 10000000L);
+}
+
+

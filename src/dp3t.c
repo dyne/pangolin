@@ -70,7 +70,7 @@ int renew_key(uint8_t *sk) {
 
 // epd = epochs per day = ((24 * 60) / ttl in minutes) +1
 // memory allocated = epd * (EPHID_LEN +1)
-beacons_t *alloc_beacons(const uint8_t *sk, const char *bk, uint32_t num) {
+const beacons_t *alloc_beacons(const uint8_t *sk, const char *bk, uint32_t bklen, uint32_t num) {
 	Aes aes;
 	Hmac hmac;
 	beacons_t *beacons;
@@ -105,17 +105,17 @@ void free_beacons(beacons_t *b) {
 	assert(b->num > 0);
 	assert(b->data);
 	XXFREE(b->data);
-	XXFREE(b);
+	XXFREE((beacons_t*)b);
 }
 
-uint8_t *get_beacon(beacons_t *b, uint32_t num) {
+uint8_t *get_beacon(const beacons_t *b, uint32_t num) {
 	assert(b);
 	assert(num < b->num);
 	return(&b->data[num<<4]); // multiply by 16 = EPHID_LEN
 }
 
-struct dictionary *match_positive_beacons(beacons_t *ephids, positives_t *sks, 
-                                          const char *bk, uint32_t num) {
+struct dictionary *match_positives(const positives_t *sks, const beacons_t *ephids,
+                                   const char *bk, uint32_t num) {
 	struct dictionary *dic = dic_new(0);
 	// initial buffer allocation: number of ephids / 8
 	Hmac hmac;

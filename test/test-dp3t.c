@@ -29,35 +29,36 @@
 #include <test/bdd-for-c.h>
 #include <test/aux.h>
 #include <test/vectors.h>
-
-#define SK_LEN 32
-#define EPHID_LEN 16
+#include <test/positives_20k.h>
 
 spec("DP-3T") {
-	// static char BK[] = "Broadcast key";
-
 	before() {
 		printf("version: %s\n",VERSION);
 		printf("platform: %s\n", PLATFORM);
-		// printf("broadcast: %s\n", hex32(BK));
 	}
 	after() {
+		// 
 	}
 	describe("lowcost") {
 		static uint8_t sk[32];
-		static beacons_t *b;
+		static const beacons_t *b;
 		static uint8_t *e;
 		static uint32_t epd = (24*60)/15;
+
+		// should be const, reused for tests
 		static beacons_t ephids;
 		static positives_t positives;
+
 		before() {
 			gcinit(&head);
 			memset(sk,0x0,32);
 		}
-
+		after_each() {
+			//
+		}
 		after() {
-			free_beacons(b);
-			gcfree(&head);
+			free_beacons((beacons_t*)b);
+			gcfree(&head); // free all strings
 		}
 
 		it("should use 'Broadcast key'") check( compare(hex32(BK), "Broadcast key", BKLEN) );
@@ -71,7 +72,7 @@ spec("DP-3T") {
 		}
 		it("should allocate memory and generate beacons") {
 			memset(sk,0x0,32);
-			b = alloc_beacons(sk, hex32(BK), epd);
+			b = alloc_beacons(sk, hex32(BK), BKLEN, epd);
 			check( b != NULL ); 
 		}
 		it("should have zero derived EphID 1 matching 8fd521e6c47060ef...") {
@@ -83,10 +84,11 @@ spec("DP-3T") {
 			check( compare(e, hex32(ephid8), 16) );
 		}
 		it("should match first positive SK generated EphID") {
-			static beacons_t *ske;
+			static const beacons_t *ske;
 			ske = alloc_beacons( //hex32(ZERO32),
 				hex32("984544bc997859dc250b664da0bc7ff55d7d1aa2d5bb7e8c4d0f0d17312437e9"),
-				hex32(BK), epd);
+				// SK number 9073 in the positives.h vector list
+				hex32(BK), BKLEN, epd);
 		}
 		it("should match EphIDs with key 984544bc...") {
 			ephids.num = 14;
@@ -110,9 +112,21 @@ spec("DP-3T") {
 				        "be72bb64705835411286c011c6c6da7cab6b78e4713dfe12538e3c685e8a7ea9"
 				        "1d28890e653790c0d337affec887375718dda447e135cc7e5ef32aa19e045a52"
 				        "213bb73bd4936375d02c4b72eb2b5ed6ac57318d8f7da7359a75d403ac1d8398");
-			struct dictionary *dic = match_positive_beacons(&ephids, &positives, hex32(BK), 9);
+			struct dictionary *dic = match_positives((const positives_t*)&positives,
+			                                         (const beacons_t*)&ephids,
+			                                         hex32(BK), BKLEN, 9);
 			dic_find(dic, "984544bc997859dc250b664da0bc7ff55d7d1aa2d5bb7e8c4d0f0d17312437e9", 32);
 			check( *dic->value == 5 )
+		}
+		it("should compute a match over 20k keys with epoch 15 minutes (96 moments)") {
+			positives.num = 20000;
+			positives.data = hex32(positive_sks); // vectors from positives.h
+			struct timespec *watch = stopwatch_go();
+			struct dictionary *dic = match_positives(&positives, &ephids, hex32(BK), 96);
+			double exectime = stopwatch_lap(watch);
+			free(watch);
+			dic_find(dic, "984544bc997859dc250b664da0bc7ff55d7d1aa2d5bb7e8c4d0f0d17312437e9", 32);
+			check( *dic->value == 5 );
 		}
 	}
 }

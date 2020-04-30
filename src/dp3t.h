@@ -36,14 +36,13 @@ typedef struct {
 	uint8_t *data;
 } positives_t;
 
-
 int renew_key(uint8_t *sk);
 
-beacons_t *alloc_beacons(const uint8_t *sk, const char *bk, uint32_t epd);
-void       free_beacons(beacons_t *b);
-uint8_t   *get_beacon(beacons_t *b, uint32_t num);
+const beacons_t *alloc_beacons(const uint8_t *sk, const char *bk, uint32_t bklen, uint32_t num);
+void       free_beacons(const beacons_t *b);
+uint8_t   *get_beacon(const beacons_t *b, uint32_t num);
 
-struct dictionary *match_positive_beacons(beacons_t *ephids, positives_t *sks,
-                                          const char *bk, uint32_t num);
+struct dictionary *match_positives(const positives_t *sks, const beacons_t *ephids,
+                                   const char *bk, uint32_t num);
 
 #endif
