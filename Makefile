@@ -4,6 +4,7 @@ CC ?= gcc
 INCLUDES := -I .
 CFLAGS := -DDEBUG -O0 -ggdb -Wall -fPIC $(INCLUDES)
 # CFLAGS += -fstack-protector-all -D_FORTIFY_SOURCE=2 -fno-strict-overflow
+OK=\033[1m\033[32mOK\033[0m
 
 ARCH ?= $(shell uname -m)
 BRANCH := $(shell git symbolic-ref HEAD | sed -e 's,.*/\(.*\),\1,')
@@ -15,7 +16,7 @@ LDADD := -lwolfssl
 
 all: lib
 	@echo
-	@echo "Built on $(PLATFORM)"
+	@echo "${OK} Built on $(PLATFORM)"
 	@echo
 
 lib:

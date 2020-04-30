@@ -1,7 +1,8 @@
-/* This file is part of RedRoom (https://zenroom.dyne.org)
+/* The Fastest Proximity Tracing in the West (FPTW)
+ * aka the Secret Pangolin Code
  *
- * Copyright (C) 2019 Dyne.org foundation
- * designed, written and maintained by Denis Roio <jaromil@dyne.org>
+ * Copyright (C) 2020 Dyne.org foundation
+ * designed, written and maintained by Daniele Lacamera and Denis Roio
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as
