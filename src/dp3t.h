@@ -23,28 +23,47 @@
 #define __DP3T_H__
 
 #include <inttypes.h>
-#include <hashdict.h>
+
+typedef uint8_t beacon_t[16];
+typedef uint8_t sk_t[32];
 
 // simple offset structure of num elements sized EPHID_LEN bytes
 typedef struct {
-	uint32_t ttl;                //< ttl in minutes
-	uint8_t *data;              //< data offset
-	char *broadcast;          //< broadcast key
+	uint32_t epochs;           //< data length (capacity) provided by caller
+	char     broadcast[32];   //< broadcast key
 	uint32_t broadcast_len;  //< broadcast key length
+	beacon_t ephids[0];    //< data offset provided by caller
 } beacons_t;
 
+typedef struct __attribute__((packed)) {
+	uint8_t day;
+	uint8_t epoch;
+	uint8_t rssi;
+	uint8_t reserved;
+	uint8_t data[16];
+} contact_t;
+
 typedef struct {
-	uint8_t *data;    //< data offset
-	uint32_t count; //< number of sk objects stored in data
-} positives_t;
+	uint32_t count;             //< number of ephids stored
+	contact_t *ephids;         //< array of ephids
+	uint32_t epochs;          //< how many epochs in a day
+	char     broadcast[32];  //< broadcast key
+	uint32_t broadcast_len; //< broadcast key length
+} contacts_t; // always const
 
-int renew_key(uint8_t *sk);
+typedef struct {
+	uint32_t count;           //< number of ephids stored
+	contact_t *ephids[0];     //< array of ephids
+} matches_t;
 
-const beacons_t *alloc_beacons(const uint8_t *sk, const char *bk, uint32_t bklen, uint32_t num);
-void       free_beacons(const beacons_t *b);
-uint8_t   *get_beacon(const beacons_t *b, uint32_t num);
+void renew_key(sk_t dest, sk_t src);
 
-struct dictionary *match_positives(const positives_t *sks, const beacons_t *ephids);
+int32_t generate_beacons(beacons_t *beacons, uint32_t max_beacons,
+                         const sk_t *oldest_sk, const uint32_t day, const uint32_t ttl,
+                         const char *bk, uint32_t bklen);
+
+int32_t match_positive(matches_t *matches, uint32_t max_matches,
+                       const sk_t positive, const contacts_t *contacts);
 
 
 #endif
