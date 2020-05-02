@@ -24,7 +24,11 @@
 #include <assert.h>
 #include <errno.h>
 
+#ifndef WOLFSSL_USER_SETTINGS
 #include <wolfssl/options.h>
+#else
+#include "user_settings.h"
+#endif
 #include <wolfssl/wolfcrypt/sha256.h>
 #include <wolfssl/wolfcrypt/aes.h>
 #include <wolfssl/wolfcrypt/hmac.h>
@@ -90,7 +94,7 @@ int32_t match_positive(matches_t *matches, uint32_t max_matches,
 	uint8_t prf[32];
 	register uint32_t i, ii;
 	uint8_t skeph[16];
-	register int32_t ret = 0;
+	register uint32_t ret = 0;
 
 	assert(matches);
 	assert(positive);
