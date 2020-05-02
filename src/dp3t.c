@@ -94,7 +94,7 @@ int32_t match_positive(matches_t *matches, uint32_t max_matches,
 	uint8_t prf[32];
 	register uint32_t i, ii;
 	uint8_t skeph[16];
-	register int32_t ret = 0;
+	register uint32_t ret = 0;
 
 	assert(matches);
 	assert(positive);
