@@ -24,7 +24,11 @@
 #include <assert.h>
 #include <errno.h>
 
+#ifndef WOLFSSL_USER_SETTINGS
 #include <wolfssl/options.h>
+#else
+#include "user_settings.h"
+#endif
 #include <wolfssl/wolfcrypt/sha256.h>
 #include <wolfssl/wolfcrypt/aes.h>
 #include <wolfssl/wolfcrypt/hmac.h>
