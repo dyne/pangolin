@@ -21,6 +21,7 @@
 
 #include <src/codec.h>
 
+////////////////////////////////////////////////////////////////////
 // very simple linked list for garbage collection of dynamic strings
 struct node { void *data;	struct node *next; };
 static struct node *head;
@@ -28,6 +29,7 @@ static void gcinit(struct node **head) {
 	*head = malloc(sizeof(struct node));
 	(*head)->data = NULL;
 	(*head)->next = NULL; }
+#define gcalloc(s) gcadd(&head, malloc(s));
 static void *gcadd(struct node **head, void *data) {
 	struct node *current = *head;
 	struct node *tmp = current;
@@ -50,29 +52,42 @@ static void gcfree(struct node **head) {
 		free(tmp);
 	} while (current);
 }
-static char *hex32(const char *src) {
-	char *o = (char*)gcadd(&head, malloc(strlen(src)));
+// end of auxiliary "garbage collection" for dynamic strings
+////////////////////////////////////////////////////////////
+
+// binary conversions (passthrough)
+static char *hex(const char *src) {
+	char *o = (char*)gcalloc(strlen(src));
 	hex2bin(o, src);
 	return(o);
 }
+static char *hex32(const char *src) {
+	char *o = (char*)gcalloc(32);
+	hex2binlen(o, src, 32);
+	return(o);
+}
 static char *bin32(const uint8_t *src) {
-	char *o = (char*)gcadd(&head, malloc(64+1));
+	char *o = (char*)gcalloc(64+1);
 	bin2hex(o, src, 32);
 	return(o);
 }
 static char *bin16(const uint8_t *src) {
-	char *o = (char*)gcadd(&head, malloc(32+1));
+	char *o = (char*)gcalloc(32+1);
 	bin2hex(o, src, 16);
 	return(o);
 }
 
+// print to console
 #define H32(p) printf("%s\n", p);
 #define B16(p) printf("%s\n", bin16(p))
 #define B32(p) printf("%s\n", bin32(p))
+
+// spy functions to print and passthrough
 static const uint8_t *spy16(const uint8_t *src) { B16(src); return(src); }
 static const uint8_t *spy32(const uint8_t *src) { B32(src); return(src); }
 
-static const int compare(char *left, char *right, size_t len) {
+// compare two values
+static const int compare(uint8_t *left, uint8_t *right, size_t len) {
 	assert(! (left == right)); // avoid comparing buffer with itself
 	return(memcmp(left, right, len) == 0);
 }

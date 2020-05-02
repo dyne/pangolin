@@ -51,15 +51,18 @@ typedef struct {
 	uint32_t broadcast_len; //< broadcast key length
 } contacts_t; // always const
 
+// struct filled with match_positive results, it does not use more
+// memory but returns pointers to contact_t data passed in from
+// contacts_t
 typedef struct {
 	uint32_t count;           //< number of ephids stored
-	contact_t *ephids[0];     //< array of ephids
+	contact_t *ephids[0];     //< array of pointers to contacts found
 } matches_t;
 
 void renew_key(sk_t dest, sk_t src);
 
 int32_t generate_beacons(beacons_t *beacons, uint32_t max_beacons,
-                         const sk_t *oldest_sk, const uint32_t day, const uint32_t ttl,
+                         const sk_t oldest_sk, const uint32_t day, const uint32_t ttl,
                          const char *bk, uint32_t bklen);
 
 int32_t match_positive(matches_t *matches, uint32_t max_matches,

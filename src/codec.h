@@ -24,6 +24,8 @@
 
 int hex2bin(char *dst, const char *hex);
 
+int hex2binlen(char *dst, const char *hex, uint32_t len);
+
 void bin2hex(char *dst, const char *buf, const size_t len);
 
 #endif

@@ -25,7 +25,7 @@ lib:
 
 test: CFLAGS := -I . -I src -O0 -ggdb -fPIC
 test:
-	$(CC) $(CFLAGS) test/test-dp3t.c -o test-dp3t src/libfptw-$(ARCH).so \
+	$(CC) $(CFLAGS) test/test-dp3t.c -o test-dp3t src/libfptw-$(ARCH).so $(LDADD) \
 		 -DVERSION=\"${VERSION}\" -DPLATFORM="\"${PLATFORM}\""
 
 check: test

@@ -46,6 +46,13 @@ int hex2bin(uint8_t *dst, const char *hex) {
 	return(i);
 }
 
+int hex2binlen(uint8_t *dst, const char *hex, uint32_t len) {
+	register int i, j;
+	for(i=0, j=0; i<len; i++, j+=2)
+		dst[i] = (hextable[(short)hex[j]]<<4) + hextable[(short)hex[j+1]];
+	return(i);
+}
+
 // takes binary buffer and its bytes length, requires pre-allocation
 // of dst string
 static const char hexes[] = "0123456789abcdef";

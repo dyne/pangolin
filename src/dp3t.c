@@ -31,18 +31,8 @@
 
 #include <dp3t.h>
 
-#ifdef JEMALLOC
-#include <jemalloc/jemalloc.h>
-#else
-#include <stdlib.h>
-#endif
-
-#define SAFE_ALLOC(p) if( p==NULL ) {	  \
-		fprintf(stderr,"ERROR %s %s\n", __func__, strerror(errno)); exit(1); }
-
 // zero nonce, one ephid long
 const uint8_t zero16[16] = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
-const uint8_t zero32[32] = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
 
 char *create_key(WC_RNG* rng) { return NULL; }
 
@@ -57,7 +47,7 @@ void renew_key(sk_t dest, sk_t src) {
 
 // epd = epochs per day = ((24 * 60) / ttl in minutes) +1
 int32_t generate_beacons(beacons_t *beacons, uint32_t max_beacons,
-                         const sk_t *oldest_sk, const uint32_t day, const uint32_t ttl,
+                         const sk_t oldest_sk, const uint32_t day, const uint32_t ttl,
                          const char *bk, uint32_t bklen) {
 	Aes aes;
 	Hmac hmac;
@@ -69,7 +59,7 @@ int32_t generate_beacons(beacons_t *beacons, uint32_t max_beacons,
 	assert(bk);
 	assert(bklen > 0);
 	beacons->epochs = (24*60)/ttl+1;
-	memcpy(beacons->broadcast, bk, bklen);
+	memcpy(beacons->broadcast, bk, bklen>32?32:bklen);
 	beacons->broadcast_len       = bklen;
 
 	memcpy(sk, oldest_sk, 32);
@@ -77,7 +67,7 @@ int32_t generate_beacons(beacons_t *beacons, uint32_t max_beacons,
 		renew_key(sk_n, sk);
 		memcpy(sk, sk_n, 32);
 	}
-   
+
 	/* PRF */
 	wc_HmacInit(&hmac, NULL, INVALID_DEVID);
 	wc_HmacSetKey(&hmac, WC_SHA256, sk, 32);
@@ -87,13 +77,14 @@ int32_t generate_beacons(beacons_t *beacons, uint32_t max_beacons,
 
 	wc_AesInit(&aes, NULL, INVALID_DEVID);
 	wc_AesSetKeyDirect(&aes, prf, 32, zero16, AES_ENCRYPTION);
-	for(i=0; i<ttl; i++)
+	for(i=0; i<beacons->epochs; i++)
 		wc_AesCtrEncrypt(&aes, beacons->ephids[i], zero16, 16);
 	wc_AesFree(&aes);
 	return(0);
 }
 
-int32_t match_positive(matches_t *matches, uint32_t max_matches, const sk_t positive, const contacts_t *contacts) {
+int32_t match_positive(matches_t *matches, uint32_t max_matches,
+                       const sk_t positive, const contacts_t *contacts) {
 	Hmac hmac;
 	Aes aes;
 	uint8_t prf[32];
@@ -114,7 +105,7 @@ int32_t match_positive(matches_t *matches, uint32_t max_matches, const sk_t posi
 	wc_HmacFinal(&hmac, prf);
 	wc_AesSetKeyDirect(&aes, prf, 32, zero16, AES_ENCRYPTION);
 	// calculate ephids of the current posisk
-	for(ii=0; ii<contacts->epochs; i++) {
+	for(i=0; i<contacts->epochs; i++) {
 		wc_AesCtrEncrypt(&aes, skeph, zero16, 16);
 		for(ii=0; ii<contacts->count; ii++) {
 			if( memcmp(skeph, contacts->ephids[ii].data, 16) ==0) {
