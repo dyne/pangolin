@@ -19,7 +19,7 @@
  *
  */
 
-#include <src/codec.h>
+#include <codec.h>
 
 ////////////////////////////////////////////////////////////////////
 // very simple linked list for garbage collection of dynamic strings

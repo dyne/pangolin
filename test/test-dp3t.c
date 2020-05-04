@@ -23,15 +23,15 @@
 #include <assert.h>
 #include <string.h>
 
-#include <src/dp3t.h>
+#include <dp3t.h>
 
 #include <wolfssl/options.h>
 #include <wolfssl/wolfcrypt/sha256.h>
 
-#include <test/bdd-for-c.h>
-#include <test/aux.h>
-#include <test/vectors.h>
-#include <test/positives_20k.h>
+#include <bdd-for-c.h>
+#include <aux.h>
+#include <vectors.h>
+#include <positives_20k.h>
 
 #define TTL 15
 
