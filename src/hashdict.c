@@ -1,3 +1,11 @@
+
+// Written by @exebook
+
+// This is free and unencumbered software released into the public domain.
+
+// TODO: make hash algo modular and try xxhash32
+// https://github.com/stbrumme/xxhash/blob/master/xxhash32.h
+
 #include "hashdict.h"
 #define hash_func meiyan
 

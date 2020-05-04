@@ -1,3 +1,7 @@
+// Written by @exebook
+
+// This is free and unencumbered software released into the public domain.
+
 #ifndef HASHDICTC
 #define HASHDICTC
 #include <stdlib.h> /* malloc/calloc */
