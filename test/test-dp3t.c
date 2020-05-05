@@ -106,15 +106,15 @@ spec("DP-3T") {
 			contacts.broadcast_len = BKLEN;
 			contacts.epochs = ((24*60) / TTL) +1;
 			contacts.ephids = test_ephids;
-			static uint8_t positives[20000*32];
-			hex2binlen(positives, positive_sks, 20000*32);
+			contacts.count  = 14;
+			static uint8_t positives[20000<<5];
+			hex2binlen(positives, positive_sks, 20000<<5);
 			register int i;
-			uint32_t ret;
+			static uint32_t ret;
 			for(i=0;i<20000;i++) {
-				ret = match_positive(matches, 10, &positives[i<<5], &contacts);
-				if(ret>0) break;
+				ret += match_positive(matches, 10, &positives[i<<5], &contacts);
 			}
-			check( ret == 5, "Wrong matches: %u (should be 5)",ret );			
+			check( ret == 5, "Wrong matches: %u (should be 5)", ret );
 		}
 
 		// 	dic_find(dic, "984544bc997859dc250b664da0bc7ff55d7d1aa2d5bb7e8c4d0f0d17312437e9", 32);
