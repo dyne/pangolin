@@ -78,11 +78,12 @@ static char *bin16(const uint8_t *src) {
 }
 
 // print to console
-#define H32(p) printf("%s\n", p);
+#define HEX(p) printf("%s\n", p);
 #define B16(p) printf("%s\n", bin16(p))
 #define B32(p) printf("%s\n", bin32(p))
 
 // spy functions to print and passthrough
+static const char *spy(const char *src) { HEX(src); return(src); }
 static const uint8_t *spy16(const uint8_t *src) { B16(src); return(src); }
 static const uint8_t *spy32(const uint8_t *src) { B32(src); return(src); }
 
@@ -103,7 +104,6 @@ static struct timespec *stopwatch_go() {
 	return(ts); }
 static double stopwatch_lap(struct timespec *ts) {
 	struct timespec lap;
-	double accum;
 	if( clock_gettime( CLOCK_REALTIME, &lap) == -1 ) {
 		perror( "clock gettime" );
 		exit( EXIT_FAILURE ); }

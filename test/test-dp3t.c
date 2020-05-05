@@ -35,7 +35,17 @@
 
 #define TTL 15
 
+void print_beacons(uint8_t *sk) {
+	beacons_t *beacons;
+	beacons = gcalloc(sizeof(beacons_t)+(100*sizeof(beacon_t)));
+	assert(0==generate_beacons(beacons, 100, sk, 0, TTL, hex(BK), BKLEN));
+	register int i;
+	for(i=0;i<beacons->epochs;i++)
+		fprintf(stderr,"%u %s\n",i,bin16(beacons->ephids[i]));
+}
+
 spec("DP-3T") {
+
 	before() {
 		printf("version: %s\n",VERSION);
 		printf("platform: %s\n", PLATFORM);
