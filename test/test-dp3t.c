@@ -98,7 +98,7 @@ spec("DP-3T") {
 			       "%s != %s",bin16(beacons->ephids[7]), ephid8 );
 		}
 
-		it("should have needle vector key matching 20k positives test vectors...") {
+		it("should have a needle vector among 20.000 matching 5 beacons...") {
 			static matches_t *matches;
 			matches = gcalloc(sizeof(matches_t)+(10*sizeof(contact_t*)));
 			static contacts_t contacts;
@@ -116,19 +116,5 @@ spec("DP-3T") {
 			}
 			check( ret == 5, "Wrong matches: %u (should be 5)", ret );
 		}
-
-		// 	dic_find(dic, "984544bc997859dc250b664da0bc7ff55d7d1aa2d5bb7e8c4d0f0d17312437e9", 32);
-		// 	check( *dic->value == 5 )
-		// }
-		// it("should compute a match over 20k keys with epoch 15 minutes (96 moments)") {
-		// 	positives.count = 20000;
-		// 	positives.data = hex(positive_sks); // vectors from positives.h
-		// 	struct timespec *watch = stopwatch_go();
-		// 	struct dictionary *dic = match_positives(&positives, &ephids);
-		// 	double exectime = stopwatch_lap(watch);
-		// 	free(watch);
-		// 	dic_find(dic, "984544bc997859dc250b664da0bc7ff55d7d1aa2d5bb7e8c4d0f0d17312437e9", 32);
-		// 	check( *dic->value == 5 );
-		// }
 	}
 }

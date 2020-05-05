@@ -37,11 +37,15 @@
 
 <br><br>
 
-Proximity tracing (proxtrax) with blazing fast speed, developed with the _embedded first_ mindset.
+This is a library implementing "proximity tracing" protocols for privacy-preserving contact tracing. 
 
-Our benchmarks report that for **20.000** entries of DP3T Ephemeral IDs, ~5MB or RAM used and **0.02s** of execution.
+The Secret Pangolin Code has the ambition to run at blazing fast speeds while being easy to maintain and fully compliant with FIPS.
 
-🚧 Pangolin is friend of the [DECODE project](https://decodeproject.eu) about data-ownership and [technological sovereignty](https://www.youtube.com/watch?v=RvBRbwBm_nQ). Our effort is that of improving people's awareness of how their data is processed by algorithms, as well facilitate the work of developers to create along [privacy by design principles](https://decodeproject.eu/publications/privacy-design-strategies-decode-architecture) using algorithms that can be deployed in any situation without any change.
+This code is the Fastest Proximity Tracing in the West, until proven wrong of course! and developed with the _embedded first_ mindset.
+
+At this moment the first and only protocol implemented is [DP3T](https://github.com/dp-3T/documents)
+
+Pangolin is crafted with care by developers of the [DECODE project](https://decodeproject.eu) about data-ownership and [technological sovereignty](https://www.youtube.com/watch?v=RvBRbwBm_nQ). Our effort is that of improving people's awareness of how their data is processed by algorithms, as well facilitate the work of developers to create along [privacy by design principles](https://decodeproject.eu/publications/privacy-design-strategies-decode-architecture) using algorithms that can be deployed in any situation without any change.
 
 
 <details id="toc">
@@ -70,7 +74,7 @@ make
 ---
 ## 🎮 Quick start
 
-To start using Pangolin your best move is to run the tests like
+To see Pangolin in action your best move is to run the tests like
 
 ```bash
 make check
@@ -79,9 +83,57 @@ make check
 ---
 ## 🐝 API
 
-> TODO lib signatures here 
+Look a the [header
+file](https://github.com/dyne/pangolin/blob/master/src/dp3t.h) to see
+the current API, more documentation will come soon.
 
----
+Functions:
+```c
+void renew_key(sk_t dest, sk_t src);
+
+int32_t generate_beacons(beacons_t *beacons, uint32_t max_beacons,
+                         const sk_t oldest_sk, const uint32_t day, const uint32_t ttl,
+                         const char *bk, uint32_t bklen);
+
+int32_t match_positive(matches_t *matches, uint32_t max_matches,
+                       const sk_t positive, const contacts_t *contacts);
+					   
+```
+
+Data structures:
+```c
+// simple offset structure of num elements sized EPHID_LEN bytes
+typedef struct {
+	uint32_t epochs;           //< data length (capacity) provided by caller
+	char     broadcast[32];   //< broadcast key
+	uint32_t broadcast_len;  //< broadcast key length
+	beacon_t ephids[0];    //< data offset provided by caller
+} beacons_t;
+
+typedef struct __attribute__((packed)) {
+	uint8_t day;
+	uint8_t epoch;
+	uint8_t rssi;
+	uint8_t reserved;
+	uint8_t data[16];
+} contact_t;
+
+typedef struct {
+	uint32_t count;             //< number of ephids stored
+	contact_t *ephids;         //< array of ephids
+	uint32_t epochs;          //< how many epochs in a day
+	char     broadcast[32];  //< broadcast key
+	uint32_t broadcast_len; //< broadcast key length
+} contacts_t; // always const
+
+// struct filled with match_positive results, it does not use more
+// memory but returns pointers to contact_t data passed in from
+// contacts_t
+typedef struct {
+	uint32_t count;           //< number of ephids stored
+	contact_t *ephids[0];     //< array of pointers to contacts found
+} matches_t;
+```
 
 ## 📋 Testing
 
@@ -91,31 +143,46 @@ Running the test with
 make check
 ```
 
+will test the build against [DP3T vectors published here](https://github.com/DP-3T/documents/issues/62).
+
+To ease the maintainance, production and comparison of test vectors one can also use our other software [Zenroom](https://zenroom.org) which also includes a [DP3T implemetation in Zencode](https://medium.com/@jaromil/decentralized-privacy-preserving-proximity-tracing-cryptography-made-easy-af0a6ae48640)
+
 ---
 ## 🐛 Troubleshooting & debugging
 
 > Nothing to report as per now
 
-If you find any problem or suspitious behaviours please [open an issue](../../issues)
+If you find any problem or suspicious behaviours please [open an issue](../../issues)
 
 ---
 ## 😍 Acknowledgements
 
-Copyright © 2020 by [Dyne.org](https://www.dyne.org) foundation, Amsterdam
+Copyright © 2020 by [Dyne.org](https://www.dyne.org) foundation, Amsterdam.
 
-Designed, written and maintained by Daniele Lacamera & Denis "Jaromil" Roio
-with contributions by Puria Nafisi Azizi
+**The Secret Pangolin Code is licensed as AGPLv3; we are open to grant license exceptions for specific needs.**
 
-**wolfSSL/wolfCrypt** for TLS and crypto
+Designed, written and maintained by Daniele Lacamera & Denis "Jaromil" Roio.
 
-Icon made by [Freepik](https://www.flaticon.com/authors/freepik) from [www.flaticon.com](http://www.flaticon.com/)
+with contributions by Puria Nafisi Azizi.
 
-Name inspiration comes from the [Secret Rabbit Code](http://www.mega-nerd.com/SRC/)
+This software relies on the awesome **wolfSSL/wolfCrypt** library.
+
+The temporary Icon is made by [Freepik](https://www.flaticon.com/authors/freepik) from [www.flaticon.com](http://www.flaticon.com/)
+
+The name of this project is a tribute to the [Secret Rabbit Code](http://www.mega-nerd.com/SRC/) by Erik de Castro Lopo, a seminal project in the Linux Audio scene.
 
 ---
 ## 🌐 Links
 
-https://dyne.org/
+The Secret Pangolin Code is used by:
+- [DECODE Proximity HW](https://github.com/dyne/decode-proximity-hw): our own implementation for NRF52DK, Arduino Nano 33 IoT, Pinetime etc.
+- [ESP32-DP3T](https://github.com/chriamue/esp32-dp3t): third party, beware use of mbedTLS may break FIPS compliancy at the moment
+
+More links:
+- [Decentralized Privacy-Preserving Proximity Tracing (DP3T)](https://github.com/DP-3T/documents)
+- [Dyne.org foundation (Amsterdam)](https://dyne.org/)
+- [DECODE project on data sovereignty](https://decodeproject.eu)
+- [Zenroom crypto VM](https://zenroom.org)
 
 ---
 ## 👥 Contributing
@@ -130,8 +197,8 @@ Please first take a look at the [Dyne.org - Contributor License Agreement](CONTR
 6.  🙏 Thank you
 
 ---
-## 💼 License
-    Pangolin - Fastest Proximity Tracing in the West
+## 💼 Disclaimer
+    The Secret Pangolin Code, aka the Fastest Proximity Tracing in the West (FPTW)
     Copyright (c) 2020 Dyne.org foundation, Amsterdam
 
     This program is free software: you can redistribute it and/or modify
